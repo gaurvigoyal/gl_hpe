@@ -31,7 +31,7 @@ def plot_heatmap(img):
     plt.show()
 
 
-def plot_skeleton_3d(skeleton_gt, skeleton_pred=None):
+def plot_skeleton_3d(skeleton_gt, skeleton_pred=None, fname=None):
     """
         Args:
            M: extrinsic matrix as tensor of shape 4x3
@@ -43,6 +43,8 @@ def plot_skeleton_3d(skeleton_gt, skeleton_pred=None):
     skeleton_gt.plot_3d(ax, c='red')
     if skeleton_pred is not None:
         skeleton_pred.plot_3d(ax, c='blue')
+    if fname is not None:
+        plt.savefig(fname)
 
 
 def plot_2d_from_3d(dvs_frame, gt_skeleton, p_mat, pred_skeleton=None):
@@ -71,7 +73,7 @@ def plot_2d_from_3d(dvs_frame, gt_skeleton, p_mat, pred_skeleton=None):
     plt.legend()
 
 
-def plot_skeleton_2d(dvs_frame, gt_joints, pred_joints=None):
+def plot_skeleton_2d(dvs_frame, gt_joints, pred_joints=None,fname=None):
     """
         To plot image and 2D ground truth and prediction
 
@@ -90,3 +92,5 @@ def plot_skeleton_2d(dvs_frame, gt_joints, pred_joints=None):
     if pred_joints is not None:
         ax.plot(pred_joints[:, 0], pred_joints[:, 1], '.', c='blue')
     plt.legend()
+    if fname is not None:
+        plt.savefig(fname)
