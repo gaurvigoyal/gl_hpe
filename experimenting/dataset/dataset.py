@@ -20,12 +20,14 @@ from experimenting.utils import Skeleton
 from .core import BaseCore
 
 __all__ = [
+    "BaseDataset"
     "ClassificationDataset",
     "HeatmapDataset",
     "JointsDataset",
     "Joints3DDataset",
     "Joints3DStereoDataset",
     "AutoEncoderDataset",
+    "SimpleReadDataset"
 ]
 
 __author__ = "Gianluca Scarpellini"
@@ -190,6 +192,27 @@ class Joints3DDataset(BaseDataset):
         }
         return label
 
+class SimpleReadDataset(BaseDataset):
+    def __init__(self, dataset, indexes=None, transform=None):
+
+        super(SimpleReadDataset, self).__init__(dataset, indexes, transform, False)
+
+        self.n_joints = dataset.N_JOINTS
+        self.height = dataset.in_shape[0]
+        self.width = dataset.in_shape[1]
+
+
+    def __getitem__(self, idx):
+        idx = self.x_indexes[idx]
+        if torch.is_tensor(idx):
+            idx = idx.tolist()
+
+        x = self._get_x(idx)
+
+        return x
+
+
+
 
 class Joints3DStereoDataset(BaseDataset):
     def __init__(self, dataset, indexes=None, transform=None):
@@ -235,3 +258,4 @@ class Joints3DStereoDataset(BaseDataset):
             "mask": mask,
         }
         return label
+

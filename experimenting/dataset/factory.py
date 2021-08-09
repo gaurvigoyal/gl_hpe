@@ -19,6 +19,7 @@ from .dataset import (
     HeatmapDataset,
     Joints3DDataset,
     JointsDataset,
+    SimpleReadDataset
 )
 
 __all__ = [
@@ -28,21 +29,27 @@ __all__ = [
     "Joints3DConstructor",
     "JointsConstructor",
     "HeatmapConstructor",
+    "SimpleReadConstructor",
 ]
 
 
 class BaseDataFactory(ABC):
-    def __init__(self, dataset_task, core_dataset: core.BaseCore = None):
+    def __init__(self, dataset_task=BaseDataset, core_dataset: core.BaseCore = None):
         self.dataset_task = dataset_task
         self.core_dataset = core_dataset
 
     def set_dataset_core(self, core_dataset: core.BaseCore):
         self.core_dataset = core_dataset
 
-    def get_dataset(self, indexes, augmentation_config, **kwargs) -> Dataset:
+    def get_dataset(self, indexes=None, augmentation_config={'apply':{}}, **kwargs) -> Dataset:
         preprocess = get_augmentation(augmentation_config)
+        if indexes==None:
+            index = np.arange(len(self.core_dataset.file_paths))
         return self.dataset_task(
-            dataset=self.core_dataset, indexes=indexes, transform=preprocess, **kwargs
+            dataset=self.core_dataset,
+            indexes=index,
+            transform=preprocess,
+            **kwargs
         )
 
     def get_frame_only_dataset(self, indexes, augmentation_config, **kwargs) -> Dataset:
@@ -121,6 +128,10 @@ class Joints3DConstructor(BaseDataFactory):
     def __init__(self):
         super(Joints3DConstructor, self).__init__(dataset_task=Joints3DDataset)
 
+class SimpleReadConstructor(BaseDataFactory):
+    def __init__(self):
+        super(SimpleReadConstructor, self).__init__(dataset_task=SimpleReadDataset)
+
 
 class Joints3DStereoConstructor(BaseDataFactory):
     def __init__(self):
@@ -180,3 +191,4 @@ def _split_set(data_indexes, split_at=0.8):
     val_indexes = data_indexes[train_split:]
 
     return train_indexes, val_indexes
+
