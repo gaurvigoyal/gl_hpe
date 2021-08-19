@@ -19,7 +19,8 @@ from .dataset import (
     HeatmapDataset,
     Joints3DDataset,
     JointsDataset,
-    SimpleReadDataset
+    SimpleReadDataset,
+    MinimalDataset
 )
 
 __all__ = [
@@ -30,6 +31,7 @@ __all__ = [
     "JointsConstructor",
     "HeatmapConstructor",
     "SimpleReadConstructor",
+    "MinimalConstructor",
 ]
 
 
@@ -132,6 +134,10 @@ class SimpleReadConstructor(BaseDataFactory):
     def __init__(self):
         super(SimpleReadConstructor, self).__init__(dataset_task=SimpleReadDataset)
 
+
+class MinimalConstructor(BaseDataFactory):
+    def __init__(self):
+        super(MinimalConstructor, self).__init__(dataset_task=MinimalDataset)
 
 class Joints3DStereoConstructor(BaseDataFactory):
     def __init__(self):

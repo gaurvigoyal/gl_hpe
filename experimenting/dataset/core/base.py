@@ -80,6 +80,9 @@ class BaseCore(ABC):
     def get_frame_from_id(self, idx):
         raise NotImplementedError()
 
+    def get_cam_from_id(self, idx):
+        raise NotImplementedError()
+
     def get_label_from_id(self, idx):
         raise NotImplementedError()
 
