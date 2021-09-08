@@ -310,6 +310,89 @@ class Skeleton:
         skeleton[13, :, :] = [[x_hipR, x_hipL], [y_hipR, y_hipL], [z_hipR, z_hipL]]
         return skeleton
 
+    @staticmethod
+    def _get_skeleton_lines_2D(x, y):
+        """
+        From DHP19 toolbox
+        """
+        # rename joints to identify name and axis
+        x_head, x_shoulderR, x_shoulderL, x_elbowR = x[0], x[1], x[2], x[3]
+        x_elbowL, x_hipR, x_hipL = (
+            x[4],
+            x[5],
+            x[6],
+        )
+        x_handR, x_handL, x_kneeR = (
+            x[7],
+            x[8],
+            x[9],
+        )
+        x_kneeL, x_footR, x_footL = x[10], x[11], x[12]
+
+        y_head, y_shoulderR, y_shoulderL, y_elbowR = y[0], y[1], y[2], y[3]
+        y_elbowL, y_hipR, y_hipL = (
+            y[4],
+            y[5],
+            y[6],
+        )
+        y_handR, y_handL, y_kneeR = (
+            y[7],
+            y[8],
+            y[9],
+        )
+        y_kneeL, y_footR, y_footL = y[10], y[11], y[12]
+
+        # definition of the lines of the skeleton graph
+        skeleton = np.zeros((14, 2, 2))
+        skeleton[0, :, :] = [
+            [x_head, x_shoulderR],
+            [y_head, y_shoulderR],
+        ]
+        skeleton[1, :, :] = [
+            [x_head, x_shoulderL],
+            [y_head, y_shoulderL],
+        ]
+        skeleton[2, :, :] = [
+            [x_elbowR, x_shoulderR],
+            [y_elbowR, y_shoulderR],
+        ]
+        skeleton[3, :, :] = [
+            [x_elbowL, x_shoulderL],
+            [y_elbowL, y_shoulderL],
+        ]
+        skeleton[4, :, :] = [
+            [x_elbowR, x_handR],
+            [y_elbowR, y_handR],
+        ]
+        skeleton[5, :, :] = [
+            [x_elbowL, x_handL],
+            [y_elbowL, y_handL],
+        ]
+        skeleton[6, :, :] = [
+            [x_hipR, x_shoulderR],
+            [y_hipR, y_shoulderR],
+        ]
+        skeleton[7, :, :] = [
+            [x_hipL, x_shoulderL],
+            [y_hipL, y_shoulderL],
+        ]
+        skeleton[8, :, :] = [[x_hipR, x_kneeR], [y_hipR, y_kneeR]]
+        skeleton[9, :, :] = [[x_hipL, x_kneeL], [y_hipL, y_kneeL]]
+        skeleton[10, :, :] = [
+            [x_footR, x_kneeR],
+            [y_footR, y_kneeR],
+        ]
+        skeleton[11, :, :] = [
+            [x_footL, x_kneeL],
+            [y_footL, y_kneeL],
+        ]
+        skeleton[12, :, :] = [
+            [x_shoulderR, x_shoulderL],
+            [y_shoulderR, y_shoulderL],
+        ]
+        skeleton[13, :, :] = [[x_hipR, x_hipL], [y_hipR, y_hipL]]
+        return skeleton
+
     def plot_3d(self, ax, c="red", limits=None, plot_lines=True):
         """
         Plot the provided skeletons in 3D coordinate space
@@ -366,6 +449,8 @@ class Skeleton:
         ax.set_xlim3d([x_middle - plot_radius, x_middle + plot_radius])
         ax.set_ylim3d([y_middle - plot_radius, y_middle + plot_radius])
         ax.set_zlim3d([z_middle - plot_radius, z_middle + plot_radius])
+
+
 
     def get_2d_points(
         self, height, width, p_mat=None, extrinsic_matrix=None, intrinsic_matrix=None

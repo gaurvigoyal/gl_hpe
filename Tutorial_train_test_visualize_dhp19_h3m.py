@@ -3,27 +3,27 @@
 
 
 import experimenting
-import event_library as el
+# import event_library as el
 import torch
 from os.path import join
 from matplotlib import pyplot as plt
-from experimenting.utils.visualization import plot_skeleton_2d, plot_skeleton_3d
+from experimenting.utils.visualization import plot_skeleton_2d, plot_skeleton_3d, plot_skeleton_2d_lined
 from experimenting.utils.skeleton_helpers import Skeleton
 import numpy as np
 from experimenting.dataset.factory import Joints3DConstructor, BaseDataFactory, SimpleReadConstructor, \
     MinimalConstructor
-import experimenting.utils.visualization as viz
+# import experimenting.utils.visualization as viz
 from experimenting.utils import utilities
 from experimenting import utils
 import time
-import scipy
 from random import randint
 import pickle
+import cv2
 
 dockerMod = False
 
 devMod = True # Switch to False to run in Docker
-hw = el.utils.get_hw_property('dvs')
+# hw = el.utils.get_hw_property('dvs')
 
 #  % Load P Matrix
 # P_mat_dir = os.path.join(datadir, 'P_matrices/')
@@ -71,26 +71,31 @@ else:
 # print(test.x_indexes)
 loader = iter(torch.utils.data.DataLoader(bla, batch_size=1, shuffle=True))
 
-b_x = next(loader)
+# b_x = next(loader)
 
 for i in range(5):
     # some_name = randint(10000, 99999)
     start = time.time()
     if devMod:
-        b_x,b_info,b_y = next(loader)
+        ch_idx = 0
+        while ch_idx != 3:
+            b_x,b_info,b_y = next(loader)
+            ch_idx = int(b_info["cam_id"])
+        # print(b_x)
+        print(ch_idx)
     else:
         b_x,b_y = next(loader)
+    # print(b_x.size())
+
     preds, outs = model(b_x.permute(0, -1, 1, 2))
     if devMod:
         # print(b_info)
-        ch_idx = int(b_info["cam_id"])
         if ch_idx==0: P_mat_cam = np.load(join(P_mat_dir,'P1.npy'))
         elif ch_idx==3: P_mat_cam = np.load(join(P_mat_dir,'P2.npy'))
         elif ch_idx==2: P_mat_cam = np.load(join(P_mat_dir,'P3.npy'))
         elif ch_idx==1: P_mat_cam = np.load(join(P_mat_dir,'P4.npy'))
-        print(ch_idx)
+        # print(ch_idx)
         extrinsics_matrix, camera_matrix = utils.decompose_projection_matrix(P_mat_cam)
-
     # model_runtime = time.time()
         pred_sk = Skeleton(preds[0].detach().numpy()).denormalize(260, 346, camera=torch.tensor(camera_matrix)).reproject_onto_world(torch.tensor(extrinsics_matrix))
     # pred_sk = Skeleton(preds[0].detach().numpy()).denormalize(260, 346, camera=b_y['camera'][0], z_ref=b_y['z_ref'][0]).reproject_onto_world(b_y['M'][0])
@@ -107,10 +112,20 @@ for i in range(5):
     pred_joints = pred_sk.get_2d_points(260, 346, p_mat= torch.tensor(P_mat_cam))#extrinsic_matrix=torch.tensor(extrinsics_matrix), intrinsic_matrix=torch.tensor(camera_matrix))
 #
 # pred_joints = np.stack([pred_joints[:, 0], pred_joints[:, 1]], 1)
-    plot_skeleton_2d(b_x[0].squeeze(), pred_joints,fname=f"{resultsPath}/plot_{i}_2d.png")
+    fig2D=plot_skeleton_2d_lined(b_x[0].squeeze(), pred_joints,fname=f"{resultsPath}/plot_{i}_2d.png",return_figure=True)
     with open(f'{resultsPath}/Example_{i}_output_2D.pickle', 'wb') as f:
         pickle.dump(pred_joints, f)# end = time.time()
 # print(f"Runtime of the program is {end - start}")
 #     print(f"The execution time of the model is {model_runtime - start}")
 # print(f"Time taken to predict, reproject and normalize is {normalization_time - start}")
 #
+    fig2D.canvas.draw()
+
+    img = np.fromstring(fig2D.canvas.tostring_rgb(), dtype=np.uint8)
+    img  = img.reshape(fig2D.canvas.get_width_height()[::-1] + (3,))
+    img = cv2.cvtColor(img,cv2.COLOR_RGB2BGR)
+
+    # x = torch.squeeze(b_x).detach().numpy()
+
+    cv2.imshow('bla',img)
+    cv2.waitKey(0)
