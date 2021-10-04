@@ -10,7 +10,6 @@ src/
 !.gitattributes
 !.pre-commit-config.yaml
 venv/
-run-model.py
 checkpoint_dhp19
 event-library
 

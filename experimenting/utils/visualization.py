@@ -74,7 +74,7 @@ def plot_2d_from_3d(dvs_frame, gt_skeleton, p_mat, pred_skeleton=None):
     plt.legend()
 
 
-def plot_skeleton_2d(dvs_frame, gt_joints, pred_joints=None,fname=None, return_figure=False):
+def plot_skeleton_2d(dvs_frame, gt_joints, pred_joints=None,fname=None, return_figure=False, lines = False):
     """
         To plot image and 2D ground truth and prediction
 
@@ -90,47 +90,25 @@ def plot_skeleton_2d(dvs_frame, gt_joints, pred_joints=None,fname=None, return_f
     ax.axis('off')
     H, W = dvs_frame.shape
     ax.plot(gt_joints[:, 0], H-gt_joints[:, 1], '.', c='red')
+    if lines:
+        plot_2d(ax, gt_joints[:, 0], H - gt_joints[:, 1], c='red')
     if pred_joints is not None:
         ax.plot(pred_joints[:, 0], H-pred_joints[:, 1], '.', c='blue')
-    plt.legend()
-    if fname is not None:
-        plt.savefig(fname)
-    if return_figure:
-        return fig
-
-def plot_skeleton_2d_lined(dvs_frame, gt_joints, pred_joints=None,fname=None, return_figure=False):
-    """
-        To plot image and 2D ground truth and prediction
-
-        Args:
-          dvs_frame: frame as vector (1xWxH)
-          sample_gt: gt joints as vector (N_jointsx2)
-
-        """
-
-    fig = plt.figure()
-    ax = fig.add_axes([0, 0, 1, 1])
-    ax.imshow(dvs_frame)
-    ax.axis('off')
-    H, W = dvs_frame.shape
-
-    # skeleton.plot_2d(ax, c='red')
-    # if skeleton_pred is not None:
-    #     skeleton_pred.plot_2d(ax, c='blue')
-    # if fname is not None:
-    #     plt.savefig(fname)
-
-    ax.plot(gt_joints[:, 0], H-gt_joints[:, 1], '.', c='red')
-    plot_2d(ax, gt_joints[:, 0], H-gt_joints[:, 1], c='red')
-    if pred_joints is not None:
-        ax.plot(pred_joints[:, 0], H-pred_joints[:, 1], '.', c='blue')
-        plot_2d(ax, pred_joints[:, 0], H-pred_joints[:, 1],c='blue')
+        if lines:
+            plot_2d(ax, pred_joints[:, 0], H - pred_joints[:, 1], c='blue')
     # plt.legend()
-    plot_2d(ax, gt_joints[:, 0], H-gt_joints[:, 1])
     if fname is not None:
         plt.savefig(fname)
     if return_figure:
         return fig
+    else:
+        return None
+
+def plot_skeleton_2d_lined(dvs_frame, gt_joints=None, pred_joints=None,fname=None, return_figure=False):
+    fig = plot_skeleton_2d(dvs_frame, gt_joints=gt_joints, pred_joints=pred_joints, fname=fname, return_figure=return_figure, lines=True)
+    if return_figure:
+        return fig
+
 
 def plot_2d(ax, x, y, c="red", limits=None, plot_lines=True):
     """

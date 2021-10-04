@@ -51,7 +51,7 @@ if dockerMod:
     path = "/data/checkpoint"
     resultsPath = "/data/DHP19/3dpose_results"
 else:
-    path = "/media/ggoyal/Shared/data/checkpoint_dhp19"
+    path = "/media/ggoyal/Shared/data/checkpoint_h3m"
     resultsPath = "/media/ggoyal/Shared/data/dhp19_sample/outputs/"
 
 model = utilities.load_model(path, "MargiposeEstimator", core=dhpcore).eval().double()
@@ -69,7 +69,7 @@ else:
 # print(train.x_indexes)
 # print(val.x_indexes)
 # print(test.x_indexes)
-loader = iter(torch.utils.data.DataLoader(bla, batch_size=1, shuffle=True))
+loader = iter(torch.utils.data.DataLoader(bla, batch_size=1, shuffle=False))
 
 # b_x = next(loader)
 
@@ -112,7 +112,7 @@ for i in range(5):
     pred_joints = pred_sk.get_2d_points(260, 346, p_mat= torch.tensor(P_mat_cam))#extrinsic_matrix=torch.tensor(extrinsics_matrix), intrinsic_matrix=torch.tensor(camera_matrix))
 #
 # pred_joints = np.stack([pred_joints[:, 0], pred_joints[:, 1]], 1)
-    fig2D=plot_skeleton_2d_lined(b_x[0].squeeze(), pred_joints,fname=f"{resultsPath}/plot_{i}_2d.png",return_figure=True)
+    fig2D = plot_skeleton_2d(b_x[0].squeeze(), pred_joints, fname=f"{resultsPath}/plot_{i}_2d.png", return_figure=True, lines=True)
     with open(f'{resultsPath}/Example_{i}_output_2D.pickle', 'wb') as f:
         pickle.dump(pred_joints, f)# end = time.time()
 # print(f"Runtime of the program is {end - start}")
@@ -125,7 +125,11 @@ for i in range(5):
     img  = img.reshape(fig2D.canvas.get_width_height()[::-1] + (3,))
     img = cv2.cvtColor(img,cv2.COLOR_RGB2BGR)
 
+    fig = plt.figure()
+    ax = fig.add_axes([0, 0, 1, 1])
+    ax.imshow(b_x[0].squeeze())
+    plt.savefig(f"{resultsPath}/plot_{i}_input.png")
     # x = torch.squeeze(b_x).detach().numpy()
 
     cv2.imshow('bla',img)
-    cv2.waitKey(0)
+    cv2.waitKey(10)
