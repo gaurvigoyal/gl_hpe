@@ -105,25 +105,28 @@ for i in range(5):
     with open(f'{resultsPath}/Example_{i}_input.pickle', 'wb') as f:
         pickle.dump(torch.squeeze(b_x).detach().numpy(), f)
 #
-# normalization_time = time.time()
-#     plot_skeleton_3d(pred_sk,  fname=f"{resultsPath}/plot_{i}_3d.png")
+#   normalization_time = time.time()
+#   plot_skeleton_3d(pred_sk,  fname=f"{resultsPath}/plot_{i}_3d.png")
     plot_skeleton_3d(Skeleton(b_y['xyz'][0]), pred_sk, fname=f"{resultsPath}/plot_{i}_3d.png")
-# gt_joints = torch.stack([b_y['2d_joints'][0][:, 0], b_y['2d_joints'][0][:, 1]], 1)
-    pred_joints = pred_sk.get_2d_points(260, 346, p_mat= torch.tensor(P_mat_cam))#extrinsic_matrix=torch.tensor(extrinsics_matrix), intrinsic_matrix=torch.tensor(camera_matrix))
+#   gt_joints = torch.stack([b_y['2d_joints'][0][:, 0], b_y['2d_joints'][0][:, 1]], 1)
+    pred_joints = pred_sk.get_2d_points(260, 346, p_mat= torch.tensor(P_mat_cam))
+    # info: extrinsic_matrix=torch.tensor(extrinsics_matrix), intrinsic_matrix=torch.tensor(camera_matrix))
 #
-# pred_joints = np.stack([pred_joints[:, 0], pred_joints[:, 1]], 1)
-    fig2D = plot_skeleton_2d(b_x[0].squeeze(), pred_joints, fname=f"{resultsPath}/plot_{i}_2d.png", return_figure=True, lines=True)
+#   pred_joints = np.stack([pred_joints[:, 0], pred_joints[:, 1]], 1)
+    fig2D = plot_skeleton_2d(b_x[0].squeeze(), pred_joints, fname=f"{resultsPath}/plot_{i}_2d.png",
+                             return_figure=True, lines=True)
     with open(f'{resultsPath}/Example_{i}_output_2D.pickle', 'wb') as f:
-        pickle.dump(pred_joints, f)# end = time.time()
-# print(f"Runtime of the program is {end - start}")
-#     print(f"The execution time of the model is {model_runtime - start}")
-# print(f"Time taken to predict, reproject and normalize is {normalization_time - start}")
-#
+        pickle.dump(pred_joints, f)
+
+    # end = time.time()
+    # print(f"Runtime of the program is {end - start}")
+    # print(f"The execution time of the model is {model_runtime - start}")
+    # print(f"Time taken to predict, reproject and normalize is {normalization_time - start}")
     fig2D.canvas.draw()
 
     img = np.fromstring(fig2D.canvas.tostring_rgb(), dtype=np.uint8)
     img  = img.reshape(fig2D.canvas.get_width_height()[::-1] + (3,))
-    img = cv2.cvtColor(img,cv2.COLOR_RGB2BGR)
+    img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
 
     fig = plt.figure()
     ax = fig.add_axes([0, 0, 1, 1])
@@ -131,5 +134,5 @@ for i in range(5):
     plt.savefig(f"{resultsPath}/plot_{i}_input.png")
     # x = torch.squeeze(b_x).detach().numpy()
 
-    cv2.imshow('bla',img)
+    cv2.imshow('bla', img)
     cv2.waitKey(10)

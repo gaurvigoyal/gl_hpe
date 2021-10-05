@@ -1,7 +1,9 @@
 import glob
 import os
 
+import numpy as np
 import pytorch_lightning as pl
+import torch
 from omegaconf import DictConfig
 
 import experimenting
@@ -58,3 +60,21 @@ def instantiate_new_model(
         **cfg.training
     )
     return model
+
+def save_2D_prediction(skeleton,file,overwrite = False)
+    if os.path.splitext(file)[1] != '.npy':
+        raise Exception("Please define a numpy file.")
+    if torch.is_tensor(skeleton):  # Convert the tensor to numpy array
+        skeleton = torch.squeeze(skeleton).detach().numpy()
+
+    skeleton = np.expand_dims(skeleton, 0) # Add another dim to the left for the row
+    print(skeleton.shape)
+
+    if os.path.exists(file) & overwrite==False:
+        old_array = np.load(file)
+        if old_array.shape[1:2]!=[13,2]:
+            raise Exception(f"Dimension miss-match. File has skeletons shaped {old_array.shape[1:2]}")
+        new_array = np.concatenate((old_array,skeleton),axis = 0)
+    else:
+        new_array = skeleton
+    np.save(file,new_array)
