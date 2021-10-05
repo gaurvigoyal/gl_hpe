@@ -3,7 +3,8 @@ Visualization toolbox
 """
 from matplotlib import pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
-
+from experimenting.utils.skeleton_helpers import Skeleton
+import numpy as np
 
 def _get_3d_ax():
     fig = plt.figure(figsize=(8, 8))
@@ -73,7 +74,7 @@ def plot_2d_from_3d(dvs_frame, gt_skeleton, p_mat, pred_skeleton=None):
     plt.legend()
 
 
-def plot_skeleton_2d(dvs_frame, gt_joints, pred_joints=None,fname=None):
+def plot_skeleton_2d(dvs_frame, gt_joints, pred_joints=None,fname=None, return_figure=False, lines = False):
     """
         To plot image and 2D ground truth and prediction
 
@@ -88,9 +89,73 @@ def plot_skeleton_2d(dvs_frame, gt_joints, pred_joints=None,fname=None):
     ax.imshow(dvs_frame)
     ax.axis('off')
     H, W = dvs_frame.shape
-    ax.plot(gt_joints[:, 0], gt_joints[:, 1], '.', c='red')
+    ax.plot(gt_joints[:, 0], H-gt_joints[:, 1], '.', c='red')
+    if lines:
+        plot_2d(ax, gt_joints[:, 0], H - gt_joints[:, 1], c='red')
     if pred_joints is not None:
-        ax.plot(pred_joints[:, 0], pred_joints[:, 1], '.', c='blue')
-    plt.legend()
+        ax.plot(pred_joints[:, 0], H-pred_joints[:, 1], '.', c='blue')
+        if lines:
+            plot_2d(ax, pred_joints[:, 0], H - pred_joints[:, 1], c='blue')
+    # plt.legend()
     if fname is not None:
         plt.savefig(fname)
+    if return_figure:
+        return fig
+    else:
+        return None
+
+def plot_skeleton_2d_lined(dvs_frame, gt_joints=None, pred_joints=None,fname=None, return_figure=False):
+    fig = plot_skeleton_2d(dvs_frame, gt_joints=gt_joints, pred_joints=pred_joints, fname=fname, return_figure=return_figure, lines=True)
+    if return_figure:
+        return fig
+
+
+def plot_2d(ax, x, y, c="red", limits=None, plot_lines=True):
+    """
+    Plot the provided skeletons in 2D coordinate space
+    Args:
+      ax: axis for plot
+      y_true_pred: joints to plot in 2D coordinate space
+      c: color (Default value = 'red')
+      limits: list of 3 ranges (x, y, and z limits)
+      plot_lines:  (Default value = True)
+
+    Note:
+      Plot the provided skeletons. Visualization purpose only
+
+    From DHP19 toolbox - modified
+    """
+
+    if limits is None:
+        limits = [[-500, 500], [-500, 500]]
+
+    # points = self._get_tensor()
+    # x = points[:, 0]
+    # y = points[:, 1]
+
+    # ax.scatter(x, y, s=20, c=c, marker="o", depthshade=True)
+
+    lines_skeleton = Skeleton._get_skeleton_lines_2D(x, y)
+
+    if plot_lines:
+        for line in range(len(lines_skeleton)):
+            ax.plot(
+                lines_skeleton[line, 0, :],
+                lines_skeleton[line, 1, :],
+                c,
+                label="gt",
+            )
+
+    ax.set_xlabel("X Label")
+    ax.set_ylabel("Y Label")
+    x_limits = limits[0]
+    y_limits = limits[1]
+    x_range = np.abs(x_limits[1] - x_limits[0])
+    x_middle = np.mean(x_limits)
+    y_range = np.abs(y_limits[1] - y_limits[0])
+    y_middle = np.mean(y_limits)
+    # The plot bounding box is a sphere in the sense of the infinity
+    # norm, hence I call half the max range the plot radius.
+    # plot_radius = 0.5 * np.max([x_range, y_range])
+    # ax.set_xlim3d([x_middle - plot_radius, x_middle + plot_radius])
+    # ax.set_ylim3d([y_middle - plot_radius, y_middle + plot_radius])

@@ -9,6 +9,10 @@ src/
 !.coveragerc
 !.gitattributes
 !.pre-commit-config.yaml
+venv/
+checkpoint_dhp19
+event-library
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

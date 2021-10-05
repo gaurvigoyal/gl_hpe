@@ -108,11 +108,19 @@ class DHP19Core(BaseCore):
     def get_frame_from_id(self, idx):
         return DHP19Core.load_frame(self.file_paths[idx])
 
+    def get_cam_from_id(self, idx):
+        filepath = self.file_paths[idx]
+        info = DHP19Core.get_frame_info(filepath)
+        return info["cam"]
+
     def get_label_from_id(self, idx):
         return self.classification_labels[idx]
 
     def get_joint_from_id(self, idx):
-        joints_file = np.load(self.joints[idx])
+        try:
+            joints_file = np.load(self.joints[idx])
+        except IOError:
+            return 0
         xyz = joints_file["xyz"].swapaxes(0, 1)
         intrinsic_matrix = torch.tensor(joints_file["camera"])
         extrinsic_matrix = torch.tensor(joints_file["M"])
