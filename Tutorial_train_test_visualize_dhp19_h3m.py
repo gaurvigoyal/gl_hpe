@@ -51,8 +51,10 @@ if dockerMod:
     path = "/data/checkpoint"
     resultsPath = "/data/DHP19/3dpose_results"
 else:
-    path = "/media/ggoyal/Shared/data/checkpoint_h3m"
-    resultsPath = "/media/ggoyal/Shared/data/dhp19_sample/outputs/"
+    # path = "/media/ggoyal/Shared/data/checkpoint_h3m"
+    # resultsPath = "/media/ggoyal/Shared/data/dhp19_sample/outputs_glhpe(h3m)"
+    path = "/media/ggoyal/Shared/data/checkpoint_dhp19"
+    resultsPath = "/media/ggoyal/Shared/data/dhp19_sample/outputs"
 
 model = utilities.load_model(path, "MargiposeEstimator", core=dhpcore).eval().double()
 
@@ -73,7 +75,7 @@ loader = iter(torch.utils.data.DataLoader(bla, batch_size=1, shuffle=False))
 
 # b_x = next(loader)
 
-for i in range(5):
+for i in range(10):
     # some_name = randint(10000, 99999)
     start = time.time()
     if devMod:
@@ -117,6 +119,7 @@ for i in range(5):
                              return_figure=True, lines=True)
     with open(f'{resultsPath}/Example_{i}_output_2D.pickle', 'wb') as f:
         pickle.dump(pred_joints, f)
+    utilities.save_2D_prediction(pred_joints,fname=join(resultsPath,"Pred_2d.npy"),overwrite=False)
 
     # end = time.time()
     # print(f"Runtime of the program is {end - start}")

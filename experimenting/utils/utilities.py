@@ -61,20 +61,36 @@ def instantiate_new_model(
     )
     return model
 
-def save_2D_prediction(skeleton,file,overwrite = False)
-    if os.path.splitext(file)[1] != '.npy':
+def save_2D_prediction(skeleton,fname,overwrite = False):
+    if os.path.splitext(fname)[1] != '.npy':
         raise Exception("Please define a numpy file.")
     if torch.is_tensor(skeleton):  # Convert the tensor to numpy array
         skeleton = torch.squeeze(skeleton).detach().numpy()
 
     skeleton = np.expand_dims(skeleton, 0) # Add another dim to the left for the row
-    print(skeleton.shape)
+    # print(skeleton.shape)
 
-    if os.path.exists(file) & overwrite==False:
-        old_array = np.load(file)
-        if old_array.shape[1:2]!=[13,2]:
-            raise Exception(f"Dimension miss-match. File has skeletons shaped {old_array.shape[1:2]}")
-        new_array = np.concatenate((old_array,skeleton),axis = 0)
+    if os.path.exists(fname) and not(overwrite):
+        # print(os.path.exists(fname))
+        # print(fname+" file found")
+        old_array = np.load(fname, allow_pickle=True)
+        # if old_array.shape[1:2]!=[13,2]:
+        #     raise Exception(f"Dimension miss-match. File has skeletons shaped {old_array.shape}")
+        new_array = np.concatenate((old_array,skeleton),axis= 0)
     else:
         new_array = skeleton
-    np.save(file,new_array)
+    np.save(fname, new_array)
+
+
+def save_timestamp(t,fname,overwrite = False):
+    if os.path.splitext(fname)[1] != '.npy':
+        raise Exception("Please define a numpy file.")
+
+    if os.path.exists(fname) and not(overwrite):
+        # print(fname+" file found")
+        old_array = np.load(fname, allow_pickle=True)
+        # new_array = np.array([old_array,t])
+        new_array = np.concatenate((old_array,np.array([t])),axis= 0)
+    else:
+        new_array = np.array([t])
+    np.save(fname, new_array)
